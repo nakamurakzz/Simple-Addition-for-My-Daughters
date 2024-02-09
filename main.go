@@ -20,7 +20,7 @@ const (
 )
 
 const (
-	gameInstructions = " Addition Game\n 'q': quit 'r': reset"
+	gameInstructions = " Simple Addition\n 'q': quit 'r': reset"
 	startPrompt      = " 's': start game\n"
 	maxGameTime      = 30 // ゲームの最大時間 (秒)
 )
