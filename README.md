@@ -12,7 +12,7 @@ Addition Game is a simple, interactive game designed for my daughters.
 ## Let's Play!!
 ### Run
 ```bash
-go run github.com:nakamurakzz/Simple-Addition-for-My-Daughters
+go run github.com/nakamurakzz/Simple-Addition-for-My-Daughters
 ```
 
 ### How to play
