@@ -137,7 +137,7 @@ func main() {
 		State:    NotStarted,
 	}
 	ebiten.SetWindowSize(640, 240)
-	ebiten.SetWindowTitle("Addition Game")
+	ebiten.SetWindowTitle("Simple Addition for my Daughters")
 	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
