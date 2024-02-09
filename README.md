@@ -10,16 +10,9 @@ Addition Game is a simple, interactive game designed for my daughters.
 - Easy Controls: Use your keyboard to interact with the game. Start a new game, submit answers, and more with simple key presses.
 
 ## Let's Play!!
-### Installation
-1. clone this repository
+### Run
 ```bash
-git clone https://github.com/nakamurakzz/Simple-Addition-for-My-Daughters.git
-cd Simple-Addition-for-My-Daughters
-```
-
-2. run App
-```bash
-go run main.go
+go run github.com:nakamurakzz/Simple-Addition-for-My-Daughters
 ```
 
 ### How to play
