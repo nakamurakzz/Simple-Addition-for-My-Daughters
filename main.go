@@ -56,7 +56,6 @@ func randomProblem() AdditionProblem {
 // Game はゲームの状態を管理します。
 type Game struct {
 	InputChars []rune
-	Title      string
 	Text       string
 	Problem    AdditionProblem
 	Score      int
@@ -64,11 +63,6 @@ type Game struct {
 	TimeLeft   int
 	StartTime  time.Time
 	Result     string
-}
-
-// checkAnswer はユーザーが入力した解答が正しいかどうかをチェックします。
-func (g *Game) checkAnswer(answer string) bool {
-	return answer == g.Problem.Solution
 }
 
 func (g *Game) Update() error {
@@ -107,7 +101,7 @@ func (g *Game) Update() error {
 	}
 
 	if len(g.InputChars) > 0 && g.InputChars[0] >= '0' && g.InputChars[0] <= '9' {
-		if g.checkAnswer(string(g.InputChars)) {
+		if string(g.InputChars) == g.Problem.Solution {
 			g.Result = ""
 			g.Score++
 			g.Problem = randomProblem()
@@ -120,15 +114,14 @@ func (g *Game) Update() error {
 }
 
 func (g *Game) Draw(screen *ebiten.Image) {
-	scoreText := strconv.Itoa(g.Score)
-	var displayText string
+	displayText := gameInstructions
 	switch g.State {
 	case NotStarted:
-		displayText = g.Title + startPrompt
+		displayText += startPrompt
 	case Playing:
-		displayText = g.Title + "\n\n " + g.Problem.Operand1 + " + " + g.Problem.Operand2 + " = _   " + g.Result + "\n" + "\n Score: " + scoreText + "  Time: " + strconv.Itoa(g.TimeLeft)
+		displayText += "\n\n " + g.Problem.Operand1 + " + " + g.Problem.Operand2 + " = _   " + g.Result + "\n" + "\n Score: " + strconv.Itoa(g.Score) + "  Time: " + strconv.Itoa(g.TimeLeft)
 	case Paused:
-		displayText = g.Title + startPrompt + "\n\n\n Score: " + scoreText + "  Time: " + strconv.Itoa(g.TimeLeft)
+		displayText += startPrompt + "\n\n\n Score: " + strconv.Itoa(g.Score) + "  Time: " + strconv.Itoa(g.TimeLeft)
 	}
 	ebitenutil.DebugPrint(screen, displayText)
 }
@@ -139,7 +132,6 @@ func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeigh
 
 func main() {
 	game := &Game{
-		Title:    gameInstructions,
 		Problem:  randomProblem(),
 		TimeLeft: maxGameTime,
 		State:    NotStarted,
