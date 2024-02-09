@@ -1,4 +1,4 @@
-module github.com/nakamurakzz/simple-addition-for-my-daughters
+module github.com/nakamurakzz/Simple-Addition-for-My-DDaughters
 
 go 1.21.6
 
