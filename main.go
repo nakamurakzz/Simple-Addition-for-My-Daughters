@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/hajimehoshi/ebiten/v2"
 	"github.com/hajimehoshi/ebiten/v2/ebitenutil"
 	"log"
@@ -9,79 +10,143 @@ import (
 	"time"
 )
 
-type Calc struct {
-	first  string
-	second string
-	answer string
+// GameState はゲームの状態を表します。
+type GameState int
+
+const (
+	NotStarted GameState = iota // ゲームがまだ始まっていない状態
+	Playing                     // ゲーム中の状態
+	Paused                      // 一時停止中の状態
+)
+
+const (
+	gameInstructions = " Addition Game\n 'q': quit 'r': reset"
+	startPrompt      = " 's': start game\n"
+	maxGameTime      = 30 // ゲームの最大時間 (秒)
+)
+
+// AdditionProblem は足し算の問題を表します。
+type AdditionProblem struct {
+	Operand1 string
+	Operand2 string
+	Solution string
 }
 
-var calcs []Calc
+var problems []AdditionProblem
 
 func init() {
-	//	create a list of calculations
-	//	answer: 0~9
-	calcs = make([]Calc, 0)
+	// 足し算の問題を生成します。解答は0から9の範囲です。
+	problems = make([]AdditionProblem, 0)
 	for i := 0; i < 10; i++ {
 		for j := 0; j < 10; j++ {
-			answer := i + j
-			if answer < 10 {
-				calcs = append(calcs, Calc{strconv.Itoa(i), strconv.Itoa(j), strconv.Itoa(answer)})
+			sum := i + j
+			if sum < 10 {
+				problems = append(problems, AdditionProblem{strconv.Itoa(i), strconv.Itoa(j), strconv.Itoa(sum)})
 			}
 		}
 	}
 }
 
-func randCalc() Calc {
+// randomProblem はランダムな足し算の問題を返します。
+func randomProblem() AdditionProblem {
 	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-	return calcs[r.Intn(len(calcs))]
+	return problems[r.Intn(len(problems))]
 }
 
+// Game はゲームの状態を管理します。
 type Game struct {
-	runes []rune
-	title string
-	text  string
-	calc  Calc
-	score int
+	InputChars []rune
+	Title      string
+	Text       string
+	Problem    AdditionProblem
+	Score      int
+	State      GameState
+	TimeLeft   int
+	StartTime  time.Time
+	Result     string
 }
 
-func (g *Game) check(a string) bool {
-	if a == g.calc.answer {
-		return true
-	}
-	return false
+// checkAnswer はユーザーが入力した解答が正しいかどうかをチェックします。
+func (g *Game) checkAnswer(answer string) bool {
+	return answer == g.Problem.Solution
 }
 
 func (g *Game) Update() error {
-	// ユーザの入力値の取得
-	g.runes = ebiten.AppendInputChars(g.runes[:0])
-
-	if len(g.runes) > 0 && g.runes[0] >= 48 && g.runes[0] <= 57 {
-		// check g.runes[0] is a number
-		if g.check(string(g.runes)) {
-			g.score++
-			g.calc = randCalc()
+	if g.State == Playing {
+		g.TimeLeft = maxGameTime - int(time.Since(g.StartTime).Seconds())
+		if g.TimeLeft < 0 {
+			g.State = Paused
+			g.TimeLeft = 0
+			return nil
 		}
+	}
+
+	// ユーザーの入力を取得
+	g.InputChars = ebiten.AppendInputChars(g.InputChars[:0])
+
+	if ebiten.IsKeyPressed(ebiten.KeyQ) {
+		return fmt.Errorf("good bye")
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyS) {
+		g.State = Playing
+		g.TimeLeft = maxGameTime
+		g.Score = 0
+		g.StartTime = time.Now()
+		g.Problem = randomProblem()
+	}
+
+	if g.State != Playing {
+		return nil
+	}
+
+	if ebiten.IsKeyPressed(ebiten.KeyR) {
+		g.Score = 0
+		g.StartTime = time.Now()
+		g.Problem = randomProblem()
+	}
+
+	if len(g.InputChars) > 0 && g.InputChars[0] >= '0' && g.InputChars[0] <= '9' {
+		if g.checkAnswer(string(g.InputChars)) {
+			g.Result = ""
+			g.Score++
+			g.Problem = randomProblem()
+			return nil
+		}
+		g.Result = "x"
 	}
 
 	return nil
 }
+
 func (g *Game) Draw(screen *ebiten.Image) {
-	score := strconv.Itoa(g.score)
-	t := "\n " + g.calc.first + " + " + g.calc.second + " = _" + "\n" + "\n Score: " + string(score)
-	ebitenutil.DebugPrint(screen, t)
+	scoreText := strconv.Itoa(g.Score)
+	var displayText string
+	switch g.State {
+	case NotStarted:
+		displayText = g.Title + startPrompt
+	case Playing:
+		displayText = g.Title + "\n\n " + g.Problem.Operand1 + " + " + g.Problem.Operand2 + " = _   " + g.Result + "\n" + "\n Score: " + scoreText + "  Time: " + strconv.Itoa(g.TimeLeft)
+	case Paused:
+		displayText = g.Title + startPrompt + "\n\n\n Score: " + scoreText + "  Time: " + strconv.Itoa(g.TimeLeft)
+	}
+	ebitenutil.DebugPrint(screen, displayText)
 }
+
 func (g *Game) Layout(outsideWidth, outsideHeight int) (screenWidth, screenHeight int) {
-	return 320, 240
+	return 320, 120
 }
 
 func main() {
-	g := &Game{
-		title: "Type on the keyboard:\n",
-		calc:  randCalc(),
+	game := &Game{
+		Title:    gameInstructions,
+		Problem:  randomProblem(),
+		TimeLeft: maxGameTime,
+		State:    NotStarted,
 	}
-	ebiten.SetWindowSize(640, 480)
-	ebiten.SetWindowTitle("Hello, World!")
-	if err := ebiten.RunGame(g); err != nil {
+	ebiten.SetWindowSize(640, 240)
+	ebiten.SetWindowTitle("Addition Game")
+	if err := ebiten.RunGame(game); err != nil {
 		log.Fatal(err)
 	}
 }
