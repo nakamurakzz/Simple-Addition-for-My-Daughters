@@ -1,4 +1,4 @@
-module github.com/nakamurakzz/ebitengine-sample
+module github.com/nakamurakzz/simple-addition-for-my-daughters
 
 go 1.21.6
 

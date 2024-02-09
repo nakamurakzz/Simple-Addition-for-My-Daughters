@@ -1,4 +1,4 @@
-# Simple Addition Game for My Daughters
+# Simple Addition for My Daughters
 
 Addition Game is a simple, interactive game designed for my daughters.
 
