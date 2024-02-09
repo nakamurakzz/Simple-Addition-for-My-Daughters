@@ -13,8 +13,8 @@ Addition Game is a simple, interactive game designed for my daughters.
 ### Installation
 1. clone this repository
 ```bash
-git clone https://github.com/nakamurakzz/addition-game.git
-cd addition-game
+git clone https://github.com/nakamurakzz/Simple-Addition-for-My-Daughters.git
+cd Simple-Addition-for-My-Daughters
 ```
 
 2. run App
