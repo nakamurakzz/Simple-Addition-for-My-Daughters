@@ -2,9 +2,10 @@ module github.com/nakamurakzz/simple-addition-for-my-daughters
 
 go 1.21.6
 
+require github.com/hajimehoshi/ebiten/v2 v2.6.5
+
 require (
 	github.com/ebitengine/purego v0.5.2 // indirect
-	github.com/hajimehoshi/ebiten/v2 v2.6.5 // indirect
 	github.com/jezek/xgb v1.1.1 // indirect
 	golang.org/x/exp/shiny v0.0.0-20240205201215-2c58cdc269a3 // indirect
 	golang.org/x/image v0.15.0 // indirect
